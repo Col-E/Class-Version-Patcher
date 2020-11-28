@@ -68,7 +68,7 @@ public class PatcherMojo extends AbstractMojo {
 				artifacts.remove(id);
 				logger.info("Found dependency to patch: " + dependency.toString());
 				if (dependency.getScope().equals("compile"))
-					logger.warn(" - This dependency should be marked as 'runtime' since it will be bundled as a patched class!");
+					logger.warn(" - This dependency should be marked as 'provided' since it will be bundled as a patched class!");
 				patch(dependency);
 			}
 		}
@@ -144,6 +144,8 @@ public class PatcherMojo extends AbstractMojo {
 		// Ensure directories exist to write to
 		File outputRoot = new File(project.getBuild().getOutputDirectory());
 		File dest = new File(outputRoot, cr.getClassName() + ".class");
+		if (dest.exists())
+			return;
 		FileUtils.forceMkdirParent(dest);
 		// Rewrite the class with the target version
 		ClassWriter cw = new ClassWriter(0);
