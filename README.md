@@ -6,10 +6,11 @@ This Maven plugin allows you to downgrade class versions of dependencies. It wil
 
 To integrate into your project:
 
-1. Install the plugin
+1. Install the plugin locally
 2. Add the plugin to your project
+    - Update the scope of any dependency that is future-versioned to `<scope>provided</scope>`
 3. Run `compile` on your project to generate the modified classes in the `{$project}/target/classes` directory
-4. Run any phase you like `test` _(They will now see the modified classes)_
+4. Run any phase you like, such as `test` _(They should now see the modified classes)_
 
 
 ### Installing the plugin locally
@@ -32,8 +33,11 @@ mvn install
                 <!-- Target Java 8, can swap for other version -->
                 <targetVersion>8</targetVersion>
                 <artifacts>
-                    <!-- The parameters are the group + artifact identifiers of any dependency separated by a colon ":" -->
+                    <!-- The parameters are the group + artifact identifiers of any dependency separated by a colon ":"
+                         You can include any number of values here.
+                     -->
                     <param>group_id:artifact_id</param>
+                    <param>org.jgroups:jgroups</param>
                 </artifacts>
             </configuration>
             <!-- Required to run -->
