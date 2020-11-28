@@ -156,6 +156,7 @@ public class PatcherMojo extends AbstractMojo {
 	 * Patcher visitor that downgrades future-versioned content.
 	 */
 	private class PatcherClassVisitor extends ClassVisitor {
+		private final Set<StringIndyRewriter> stringIndyRewriters = new HashSet<>();
 		private final String name;
 
 		public PatcherClassVisitor(ClassVisitor cv, String name) {
@@ -163,7 +164,6 @@ public class PatcherMojo extends AbstractMojo {
 			this.name = name;
 		}
 
-		private final Set<StringIndyRewriter> stringIndyRewriters = new HashSet<>();
 
 		@Override
 		public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
