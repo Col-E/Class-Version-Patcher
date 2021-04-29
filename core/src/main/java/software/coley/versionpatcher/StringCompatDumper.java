@@ -1,4 +1,4 @@
-package me.coley.maven;
+package software.coley.versionpatcher;
 
 import org.objectweb.asm.*;
 

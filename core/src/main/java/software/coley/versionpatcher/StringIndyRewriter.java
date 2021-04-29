@@ -1,4 +1,4 @@
-package me.coley.maven;
+package software.coley.versionpatcher;
 
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
@@ -6,7 +6,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A method visitor that replaces Java 9+
+ * A method visitor that replaces Java 9+ string concatenation with {@link StringCompat}.
  *
  * @author Matt Coley
  */
@@ -26,6 +26,7 @@ public class StringIndyRewriter extends MethodVisitor implements Opcodes {
 
 	@Override
 	public void visitInvokeDynamicInsn(String name, String descriptor, Handle bsmHandle, Object... bsmArgs) {
+		// Match indy's for the Java 9+ string format
 		if (name.equals("makeConcatWithConstants")) {
 			// Create the concat replace
 			visitTypeInsn(NEW, StringCompatDumper.CLASS_NAME);

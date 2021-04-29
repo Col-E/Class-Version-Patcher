@@ -1,8 +1,8 @@
-# Maven Class Version Patcher
+# Class Version Patcher
 
-This Maven plugin allows you to downgrade class versions of dependencies. It will transform future-versioned classes into the target version and bundle them in your packaged jar. You probably should not do this, but desperate times call for desperate measures eh?
+This plugin allows you to utilize all the new language features of Java while targeting an older version's bytecode. 
 
-## Usage
+## Usage - Maven
 
 To integrate into your project:
 
@@ -16,7 +16,7 @@ To integrate into your project:
 ### Installing the plugin locally
 
 ```
-git clone https://github.com/Col-E/Maven-Class-Patcher.git
+git clone https://github.com/Col-E/Class-Version-Patcher.git
 cd Maven-Class-Patcher
 mvn install
 ```
@@ -52,6 +52,10 @@ mvn install
     </plugins>
 </build>
 ```
+
+## Usage - Gradle
+
+TODO
 
 ## This doesn't properly downgrade Java X's "xyz-feature" to Java Y's version!
 
