@@ -16,7 +16,7 @@ import java.io.IOException;
  *
  * @author Matt Coley
  */
-@Mojo(name = "ClassVersionPatcher-PostProcess", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
+@Mojo(name = "patch-postprocess", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
 public class PostProcessMojo extends PatcherMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {

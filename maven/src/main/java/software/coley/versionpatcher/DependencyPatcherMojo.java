@@ -27,7 +27,7 @@ import java.util.zip.ZipFile;
  *
  * @author Matt Coley
  */
-@Mojo(name = "ClassVersionPatcher", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
+@Mojo(name = "patch-dependencies", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
 public class DependencyPatcherMojo extends PatcherMojo {
 	@Parameter(property = "artifacts")
 	public List<String> artifacts;

@@ -26,8 +26,8 @@ mvn install
 <build>
     <plugins>
         <plugin>
-            <groupId>me.coley</groupId>
-            <artifactId>class-version-patcher-plugin</artifactId>
+            <groupId>software.coley</groupId>
+            <artifactId>class-version-patcher-maven</artifactId>
             <version>1.0.0</version>
             <configuration>
                 <!-- Target Java 8, can swap for other version -->
@@ -44,7 +44,9 @@ mvn install
             <executions>
                 <execution>
                     <goals>
-                        <goal>ClassVersionPatcher</goal>
+                        <goal>patch-compiled</goal>
+                        <goal>patch-dependencies</goal>
+                        <goal>patch-postprocess</goal>
                     </goals>
                 </execution>
             </executions>
