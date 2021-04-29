@@ -9,6 +9,7 @@
 		<artifactId>class-version-patcher-parent</artifactId>
 		<version>1.0.0</version>
     </parent>
+	<packaging>jar</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>software.coley</groupId>
