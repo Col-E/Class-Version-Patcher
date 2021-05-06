@@ -1,4 +1,4 @@
-package software.coley.versionpatcher;
+package software.coley.versionpatcher.maven;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -8,6 +8,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import software.coley.versionpatcher.VersionPatcher;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,7 +22,7 @@ import java.nio.file.Paths;
  * @author Matt Coley
  */
 @Mojo(name = "patch-compiled", defaultPhase = LifecyclePhase.COMPILE)
-public class CompilePatcherMojo extends PatcherMojo {
+public class CompilePatcherMojo extends AbstractPatcherMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (project == null)

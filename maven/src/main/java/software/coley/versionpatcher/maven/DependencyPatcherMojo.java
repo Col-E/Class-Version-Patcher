@@ -1,4 +1,4 @@
-package software.coley.versionpatcher;
+package software.coley.versionpatcher.maven;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -12,6 +12,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import software.coley.versionpatcher.VersionPatcher;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,7 +29,7 @@ import java.util.zip.ZipFile;
  * @author Matt Coley
  */
 @Mojo(name = "patch-dependencies", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
-public class DependencyPatcherMojo extends PatcherMojo {
+public class DependencyPatcherMojo extends AbstractPatcherMojo {
 	@Parameter(property = "artifacts")
 	public List<String> artifacts;
 	@Parameter(defaultValue = "${localRepository}", readonly = true, required = true)
@@ -71,11 +72,8 @@ public class DependencyPatcherMojo extends PatcherMojo {
 	/**
 	 * Patches all classes in the given dependency.
 	 *
-	 * @param dependency
-	 * 		Dependency to read from.
-	 *
-	 * @throws MojoExecutionException
-	 * 		When anything goes wrong. See the associated cause exception.
+	 * @param dependency Dependency to read from.
+	 * @throws MojoExecutionException When anything goes wrong. See the associated cause exception.
 	 */
 	private void patchDependency(Dependency dependency) throws MojoExecutionException {
 		String path = localRepository.getBasedir() + '/'
@@ -105,11 +103,8 @@ public class DependencyPatcherMojo extends PatcherMojo {
 	}
 
 	/**
-	 * @param bytecode
-	 * 		Class to write to the project's build output directory.
-	 *
-	 * @throws IOException
-	 * 		When writing to the output dir fails.
+	 * @param bytecode Class to write to the project's build output directory.
+	 * @throws IOException When writing to the output dir fails.
 	 */
 	private void handleClass(byte[] bytecode) throws IOException {
 		ClassReader cr = new ClassReader(bytecode);

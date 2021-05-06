@@ -1,4 +1,4 @@
-package software.coley.versionpatcher;
+package software.coley.versionpatcher.maven;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -6,6 +6,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import software.coley.versionpatcher.StringCompatDumper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,7 +18,7 @@ import java.io.IOException;
  * @author Matt Coley
  */
 @Mojo(name = "patch-postprocess", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
-public class PostProcessMojo extends PatcherMojo {
+public class PostProcessMojo extends AbstractPatcherMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		try {
@@ -32,8 +33,7 @@ public class PostProcessMojo extends PatcherMojo {
 	/**
 	 * Adds compatibility classes to the project's class-path via its build output directory.
 	 *
-	 * @throws IOException
-	 * 		When writing to the output dir fails.
+	 * @throws IOException When writing to the output dir fails.
 	 */
 	private void addCompatibilityClasses() throws IOException {
 		File outputRoot = new File(project.getBuild().getOutputDirectory());
