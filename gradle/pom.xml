@@ -4,6 +4,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>class-version-patcher-gradle</artifactId>
 	<name>Gradle Plugin</name>
+	<properties>
+		<gradle.target>6.1.1</gradle.target>
+	</properties>
+	<repositories>
+		<repository>
+			<id>gradle</id>
+			<url>https://repo.gradle.org/gradle/libs-releases-local/</url>
+		</repository>
+	</repositories>
 	<parent>
 		<groupId>software.coley</groupId>
 		<artifactId>class-version-patcher-parent</artifactId>
@@ -15,6 +24,47 @@
 			<groupId>software.coley</groupId>
 			<artifactId>class-version-patcher-core</artifactId>
 			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.30</version>
+		</dependency>
+		<dependency>
+			<groupId>org.gradle</groupId>
+			<artifactId>gradle-core</artifactId>
+			<version>${gradle.target}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.gradle</groupId>
+			<artifactId>gradle-core-api</artifactId>
+			<version>${gradle.target}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.gradle</groupId>
+			<artifactId>gradle-base-services</artifactId>
+			<version>${gradle.target}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.gradle</groupId>
+			<artifactId>gradle-plugin-development</artifactId>
+			<version>${gradle.target}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.gradle</groupId>
+			<artifactId>gradle-plugins</artifactId>
+			<version>${gradle.target}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.gradle</groupId>
+			<artifactId>gradle-dependency-management</artifactId>
+			<version>${gradle.target}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>
