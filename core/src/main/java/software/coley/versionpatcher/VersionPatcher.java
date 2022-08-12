@@ -50,28 +50,28 @@ public class VersionPatcher extends ClassVisitor {
 
 	@Override
 	public void visitNestHost(String nestHost) {
-		if (targetVersion < 9)
+		if (targetVersion < 11)
 			return;
 		super.visitNestHost(nestHost);
 	}
 
 	@Override
 	public void visitNestMember(String nestMember) {
-		if (targetVersion < 9)
+		if (targetVersion < 11)
 			return;
 		super.visitNestMember(nestMember);
 	}
 
 	@Override
 	public void visitPermittedSubclass(String permittedSubclass) {
-		if (targetVersion < 9)
+		if (targetVersion < 15)
 			return;
 		super.visitPermittedSubclass(permittedSubclass);
 	}
 
 	@Override
 	public RecordComponentVisitor visitRecordComponent(String name, String descriptor, String signature) {
-		if (targetVersion < 9)
+		if (targetVersion < 14)
 			return null;
 		return super.visitRecordComponent(name, descriptor, signature);
 	}
