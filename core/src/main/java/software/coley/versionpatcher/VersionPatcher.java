@@ -7,6 +7,8 @@ import java.util.List;
 
 /**
  * Patcher visitor that downgrades future-versioned content.
+ *
+ * @author Matt Coley
  */
 public class VersionPatcher extends ClassVisitor {
 	private final int targetVersion;
@@ -14,7 +16,7 @@ public class VersionPatcher extends ClassVisitor {
 	// State info
 	private final List<FieldInfo> fields = new ArrayList<>();
 	private String className;
-	private boolean wasRecord;
+	private boolean rewriteRecordMembers;
 
 	public VersionPatcher(ClassVisitor parent, int targetVersion) {
 		super(Opcodes.ASM9, parent);
@@ -28,7 +30,7 @@ public class VersionPatcher extends ClassVisitor {
 		version = Math.min(version, classVersion);
 		// Modify super-type for records (previewed in 14)
 		if (targetVersion < 14 && "java/lang/Record".equals(superName)) {
-			wasRecord = true;
+			rewriteRecordMembers = true;
 			superName = "java/lang/Object";
 			access &= ~Opcodes.ACC_RECORD;
 		}
@@ -44,16 +46,19 @@ public class VersionPatcher extends ClassVisitor {
 
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-		MethodVisitor parent = super.visitMethod(access, name, descriptor, signature, exceptions);
-		MethodVisitor mv = new MethodPatcher(parent, name);
-		// Rewrite record implementation methods
-		if (wasRecord && RecordMethodImplRewriter.isRecognizedTargetMethod(access, name, descriptor)) {
-			mv = new RecordMethodImplRewriter(mv, className, fields, name, descriptor);
+		MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
+		// Rewrite record methods
+		if (rewriteRecordMembers) {
+			// Rewrite constructor to point to 'java/lang/Object' super-class when calling parent '<init>'
+			if ("<init>".equals(name))
+				mv = new RecordConstructorRewriter(mv);
+			// Rewrite implementation methods
+			if (RecordMethodImplRewriter.isRecognizedTargetMethod(access, name, descriptor))
+				mv = new RecordMethodImplRewriter(mv, className, fields, name, descriptor);
 		}
-		// De-Indify strings below Java 9
-		if (targetVersion < 9) {
+		// Rewrite string concatenation to not use invoke-dynamic
+		if (targetVersion < 9)
 			mv = new StringIndyRewriter(mv);
-		}
 		return mv;
 	}
 
@@ -90,24 +95,5 @@ public class VersionPatcher extends ClassVisitor {
 		if (targetVersion < 14)
 			return null;
 		return super.visitRecordComponent(name, descriptor, signature);
-	}
-
-	class MethodPatcher extends MethodVisitor {
-		private final String methodName;
-
-		public MethodPatcher(MethodVisitor mv, String methodName) {
-			super(Opcodes.ASM9, mv);
-			this.methodName = methodName;
-		}
-
-		@Override
-		public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-			// Modify super call for records (previewed in 14) in constructors
-			if (methodName.equals("<init>") && opcode == Opcodes.INVOKESPECIAL &&
-					targetVersion < 14 && "java/lang/Record".equals(owner)) {
-				owner = "java/lang/Object";
-			}
-			super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-		}
 	}
 }
