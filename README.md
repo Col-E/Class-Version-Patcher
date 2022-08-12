@@ -9,7 +9,7 @@ To integrate into your project:
 1. Install the plugin locally
 2. Add the plugin to your project
     - Update the scope of any dependency that is future-versioned to `<scope>provided</scope>`
-3. Run `compile` on your project to generate the modified classes in the `%PROJECR%/target/classes` directory
+3. Run `compile` on your project to generate the modified classes in the `%PROJECT%/target/classes` directory
 4. Run any phase you like, such as `test` _(They should now see the modified classes)_
 
 
