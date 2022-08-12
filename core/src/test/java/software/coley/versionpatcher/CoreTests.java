@@ -6,6 +6,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -89,8 +90,9 @@ public class CoreTests {
 				if (Files.exists(filePath)) {
 					ClassReader reader = new ClassReader(Files.readAllBytes(filePath));
 					ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+					CheckClassAdapter checker = new CheckClassAdapter(writer);
 
-					VersionPatcher patcher = new VersionPatcher(writer, version);
+					VersionPatcher patcher = new VersionPatcher(checker, version);
 					reader.accept(patcher, ClassReader.EXPAND_FRAMES);
 
 					byte[] classBytes = writer.toByteArray();
