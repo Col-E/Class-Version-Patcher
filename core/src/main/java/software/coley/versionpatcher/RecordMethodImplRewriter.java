@@ -2,6 +2,7 @@ package software.coley.versionpatcher;
 
 import org.objectweb.asm.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -208,10 +209,11 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 	public void visitEnd() {
 		int maxLocals;
 		int maxStack;
+		List<Runnable> variablePopulators = new ArrayList<>();
 		Label start = new Label();
 		Label end = new Label();
 		mv.visitLabel(start);
-		//mv.visitLocalVariable("this", "L" + declaringType + ";", null, start, end, 0);
+		variablePopulators.add(() -> mv.visitLocalVariable("this", "L" + declaringType + ";", null, start, end, 0));
 		if (isEquals(methodName, methodDesc)) {
 			Label passEquals = new Label();
 			Label passNull = new Label();
@@ -219,8 +221,8 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 			Label castStart = new Label();
 			Label successReturn = new Label();
 			Label fallbackReturn = new Label();
-			//mv.visitLocalVariable("o", "Ljava/lang/Object;", null, start, end, 1);
-			//mv.visitLocalVariable("other", "Ljava/lang/Object;", null, castStart, end, 2);
+			variablePopulators.add(() -> mv.visitLocalVariable("o", "Ljava/lang/Object;", null, start, end, 1));
+			variablePopulators.add(() -> mv.visitLocalVariable("other", "L" + declaringType + ";", null, castStart, end, 2));
 			// if (this == o) return true;
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ALOAD, 1);
@@ -330,6 +332,7 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 			throw new IllegalStateException("Unsupported method: " + declaringType + "." + methodName + methodName);
 		}
 		mv.visitLabel(end);
+		variablePopulators.forEach(Runnable::run);
 		mv.visitMaxs(maxStack, maxLocals);
 		super.visitEnd();
 	}
