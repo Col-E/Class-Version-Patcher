@@ -4,6 +4,7 @@ import org.objectweb.asm.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A method visitor that replaces Java 14+ record method implementations for:
@@ -209,6 +210,7 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 	public void visitEnd() {
 		int maxLocals;
 		int maxStack;
+		List<FieldInfo> instanceFields = getInstanceFields();
 		List<Runnable> variablePopulators = new ArrayList<>();
 		Label start = new Label();
 		Label end = new Label();
@@ -251,7 +253,7 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 			mv.visitVarInsn(ASTORE, 2);
 			mv.visitLabel(castStart);
 			// Compare all fields for equality
-			for (FieldInfo field : fields) {
+			for (FieldInfo field : instanceFields) {
 				// push our field
 				pushFieldValueToStack(field);
 				mapStackTopValueToObject(field.getDescriptor());
@@ -275,12 +277,12 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 			maxLocals = 3;
 			maxStack = 2;
 		} else if (isHashCode(methodName, methodDesc)) {
-			// Create Object[number-of-fields]
-			mv.visitIntInsn(BIPUSH, fields.size());
+			// Create Object[number-of-instance-fields]
+			mv.visitIntInsn(BIPUSH, instanceFields.size());
 			mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
 			// array[n] = fields[n]
-			for (int i = 0; i < fields.size(); i++) {
-				FieldInfo field = fields.get(i);
+			for (int i = 0; i < instanceFields.size(); i++) {
+				FieldInfo field = instanceFields.get(i);
 				mv.visitInsn(DUP);
 				mv.visitIntInsn(BIPUSH, i);
 				pushFieldValueToStack(field);
@@ -299,12 +301,12 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 			mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
 			mv.visitInsn(DUP);
 			mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false);
-			if (fields.isEmpty()) {
+			if (instanceFields.isEmpty()) {
 				mv.visitLdcInsn(simpleTypeName + "[]");
 				mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
 			} else {
-				for (int i = 0; i < fields.size(); i++) {
-					FieldInfo field = fields.get(i);
+				for (int i = 0; i < instanceFields.size(); i++) {
+					FieldInfo field = instanceFields.get(i);
 					boolean isFirst = i == 0;
 					if (isFirst) {
 						mv.visitLdcInsn(simpleTypeName + "[" + field.getName() + "=");
@@ -337,7 +339,15 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 		super.visitEnd();
 	}
 
+	private List<FieldInfo> getInstanceFields() {
+		// Skip static and compiler-generated fields
+		return fields.stream()
+				.filter(f -> (f.getAccess() & (ACC_STATIC | ACC_SYNTHETIC)) == 0)
+				.collect(Collectors.toList());
+	}
+
 	private void pushFieldValueToStack(FieldInfo field) {
+		// Pushes: this.<field-ref>
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, declaringType, field.getName(), field.getDescriptor());
 	}
