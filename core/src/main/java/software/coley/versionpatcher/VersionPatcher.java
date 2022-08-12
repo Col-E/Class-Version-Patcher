@@ -26,6 +26,7 @@ public class VersionPatcher extends ClassVisitor {
 		// Modify super-type for records (previewed in 14)
 		if (targetVersion < 14 && "java/lang/Record".equals(superName)) {
 			superName = "java/lang/Object";
+			access &= ~Opcodes.ACC_RECORD;
 		}
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
