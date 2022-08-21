@@ -1,10 +1,11 @@
 package software.coley.versionpatcher;
 
 import org.objectweb.asm.*;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A method visitor that replaces Java 14+ record method implementations for:
@@ -211,11 +212,15 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 		int maxLocals;
 		int maxStack;
 		List<FieldInfo> instanceFields = getInstanceFields();
-		List<Runnable> variablePopulators = new ArrayList<>();
+
+		List<LocalVariableNode> localVariables = new ArrayList<>();
+
 		Label start = new Label();
 		Label end = new Label();
+		LabelNode endNode = new LabelNode(end);
+		LabelNode startNode = new LabelNode(start);
 		mv.visitLabel(start);
-		variablePopulators.add(() -> mv.visitLocalVariable("this", "L" + declaringType + ";", null, start, end, 0));
+		localVariables.add(new LocalVariableNode("this", "L" + declaringType + ";", null, startNode, endNode, 0));
 		if (isEquals(methodName, methodDesc)) {
 			Label passEquals = new Label();
 			Label passNull = new Label();
@@ -223,8 +228,8 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 			Label castStart = new Label();
 			Label successReturn = new Label();
 			Label fallbackReturn = new Label();
-			variablePopulators.add(() -> mv.visitLocalVariable("o", "Ljava/lang/Object;", null, start, end, 1));
-			variablePopulators.add(() -> mv.visitLocalVariable("other", "L" + declaringType + ";", null, castStart, end, 2));
+			localVariables.add(new LocalVariableNode("o", "Ljava/lang/Object;", null, startNode, endNode, 1));
+			localVariables.add(new LocalVariableNode("other", "L" + declaringType + ";", null, new LabelNode(castStart), endNode, 2));
 			// if (this == o) return true;
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ALOAD, 1);
@@ -310,17 +315,13 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 					boolean isFirst = i == 0;
 					if (isFirst) {
 						mv.visitLdcInsn(simpleTypeName + "[" + field.getName() + "=");
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-						pushFieldValueToStack(field);
-						mapStackTopValueToObject(field.getDescriptor());
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", false);
 					} else {
 						mv.visitLdcInsn(", " + field.getName() + "=");
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-						pushFieldValueToStack(field);
-						mapStackTopValueToObject(field.getDescriptor());
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", false);
 					}
+					mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+					pushFieldValueToStack(field);
+					mapStackTopValueToObject(field.getDescriptor());
+					mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", false);
 				}
 				mv.visitLdcInsn("]");
 				mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
@@ -334,16 +335,23 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 			throw new IllegalStateException("Unsupported method: " + declaringType + "." + methodName + methodName);
 		}
 		mv.visitLabel(end);
-		variablePopulators.forEach(Runnable::run);
+//		variablePopulators.forEach(Runnable::run);
+		for (LocalVariableNode localVariableNode : localVariables) {
+			mv.visitLocalVariable(localVariableNode.name, localVariableNode.desc, localVariableNode.signature, localVariableNode.start.getLabel(), localVariableNode.end.getLabel(), localVariableNode.index);
+		}
 		mv.visitMaxs(maxStack, maxLocals);
 		super.visitEnd();
 	}
 
 	private List<FieldInfo> getInstanceFields() {
-		// Skip static and compiler-generated fields
-		return fields.stream()
-				.filter(f -> (f.getAccess() & (ACC_STATIC | ACC_SYNTHETIC)) == 0)
-				.collect(Collectors.toList());
+		List<FieldInfo> fieldInfos = new ArrayList<>();
+		for (FieldInfo fieldInfo : fields) {
+			// Skip static and compiler-generated fields
+			if ((fieldInfo.getAccess() & (ACC_STATIC | ACC_SYNTHETIC)) == 0) {
+				fieldInfos.add(fieldInfo);
+			}
+		}
+		return fieldInfos;
 	}
 
 	private void pushFieldValueToStack(FieldInfo field) {
