@@ -34,7 +34,8 @@ public class CoreTests {
 
     @Before
 	public void setup() {
-		// Assert the test is run on Java 8 to prove that it can downsample classes by running them
+		// Assert the test is run on Java 8 or lower to prove that
+        // it can downsample classes by running them
 		assertTrue(
 				"Must run test on a version lower or equal to Java 8!",
 				CLASSFILE_VERSION <= Opcodes.V1_8
