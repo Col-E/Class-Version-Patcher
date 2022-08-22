@@ -33,7 +33,6 @@ public class CoreTests {
                 "Must run test on a version lower or equal to Java 8!",
                 CLASSFILE_VERSION <= Opcodes.V1_8
         );
-        System.out.println("Classfile Version: " + CLASSFILE_VERSION);
     }
 
     @Parameterized.Parameters
