@@ -213,7 +213,7 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 		int maxStack;
 		List<FieldInfo> instanceFields = getInstanceFields();
 
-		List<LocalVariableNode> localVariables = new ArrayList<>();
+		List<LocalVariableNode> localVariables = new ArrayList<LocalVariableNode>();
 
 		Label start = new Label();
 		Label end = new Label();
@@ -344,7 +344,7 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 	}
 
 	private List<FieldInfo> getInstanceFields() {
-		List<FieldInfo> fieldInfos = new ArrayList<>();
+		List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>();
 		for (FieldInfo fieldInfo : fields) {
 			// Skip static and compiler-generated fields
 			if ((fieldInfo.getAccess() & (ACC_STATIC | ACC_SYNTHETIC)) == 0) {

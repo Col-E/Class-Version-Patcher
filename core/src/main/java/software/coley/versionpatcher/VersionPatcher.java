@@ -14,7 +14,7 @@ public class VersionPatcher extends ClassVisitor {
 	private final int targetVersion;
 	private final int classVersion;
 	// State info
-	private final List<FieldInfo> fields = new ArrayList<>();
+	private final List<FieldInfo> fields = new ArrayList<FieldInfo>();
 	private String className;
 	private boolean rewriteRecordMembers;
 

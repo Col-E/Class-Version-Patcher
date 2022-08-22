@@ -1,7 +1,5 @@
 package software.coley.versionpatcher;
 
-import java.util.Objects;
-
 /**
  * Wrapper of field declaration information.
  *
@@ -60,6 +58,12 @@ public class FieldInfo {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(access, name, descriptor);
+		int result = 1;
+
+		result = 31 * result + access;
+		result = 31 * result + name.hashCode();
+		result = 31 * result + descriptor.hashCode();
+
+		return result;
 	}
 }

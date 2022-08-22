@@ -9,15 +9,10 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.CheckClassAdapter;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -28,7 +23,7 @@ import static org.junit.Assert.fail;
  */
 @RunWith(Parameterized.class)
 public class CoreTests {
-    private static final Path testResourceDirectory = Paths.get("src", "test", "resources");
+    private static final File testResourceDirectory = new File("src" + File.separator + "test" + File.separator + "resources");
     private static final PatchedClassLoader loader = new PatchedClassLoader(8, ClassLoader.getSystemClassLoader());
 
     @Before
@@ -40,7 +35,7 @@ public class CoreTests {
     @Parameterized.Parameters
     public static File[] provideFiles() {
         try {
-            return testResourceDirectory.toFile().listFiles(new FilenameFilter() {
+            return testResourceDirectory.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
                     return name.matches("Java\\d+\\w+.class");
@@ -70,7 +65,7 @@ public class CoreTests {
             main.setAccessible(true);
             String[] args = new String[0];
             main.invoke(null, (Object) args);
-        } catch (ReflectiveOperationException ex) {
+        } catch (Exception ex) {
             fail(ex.getMessage());
         }
     }
@@ -99,9 +94,19 @@ public class CoreTests {
         protected Class<?> findClass(String name) throws ClassNotFoundException {
             try {
                 // Check if name is one of our test cases
-                Path filePath = testResourceDirectory.resolve(name + ".class");
-                if (Files.exists(filePath)) {
-                    ClassReader reader = new ClassReader(Files.readAllBytes(filePath));
+                File file = new File(testResourceDirectory, name + ".class");
+                if (file.exists()) {
+                    InputStream is = new FileInputStream(file);
+                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                    int nRead;
+                    byte[] data = new byte[4];
+                    while ((nRead = is.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, nRead);
+                    }
+                    buffer.flush();
+                    byte[] byteBuffer = buffer.toByteArray();
+
+                    ClassReader reader = new ClassReader(byteBuffer);
                     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
                     CheckClassAdapter checker = new CheckClassAdapter(writer);
 

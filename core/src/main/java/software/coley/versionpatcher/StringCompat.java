@@ -15,7 +15,7 @@ public final class StringCompat {
 	private static final char TAG_ARG = '\u0001';
 	private static final char TAG_CONST = '\u0002';
 	private static final String TAG_ARG_STR = String.valueOf(TAG_ARG);
-	private final List<String> list = new ArrayList<>();
+	private final List<String> list = new ArrayList<String>();
 
 	/**
 	 * @param value
