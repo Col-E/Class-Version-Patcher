@@ -26,33 +26,19 @@ public class CoreTests {
 	private static final File testResourceDirectory = new File("src" + File.separator + "test" + File.separator + "resources");
 	private static final PatchedClassLoader loader = new PatchedClassLoader(CLASSFILE_VERSION - 44, ClassLoader.getSystemClassLoader());
 
-	@Before
+    private final File targetFile;
+
+    public CoreTests(File targetFile) {
+        this.targetFile = targetFile;
+    }
+
+    @Before
 	public void setup() {
 		// Assert the test is run on Java 8 to prove that it can downsample classes by running them
 		assertTrue(
 				"Must run test on a version lower or equal to Java 8!",
 				CLASSFILE_VERSION <= Opcodes.V1_8
 		);
-	}
-
-	@Parameterized.Parameters
-	public static File[] provideFiles() {
-		try {
-			return testResourceDirectory.listFiles(new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					return name.matches("Java\\d+\\w+.class");
-				}
-			});
-		} catch (Exception ex) {
-			throw new IllegalStateException(ex);
-		}
-	}
-
-	private final File targetFile;
-
-	public CoreTests(File targetFile) {
-		this.targetFile = targetFile;
 	}
 
 	@Test
@@ -72,6 +58,20 @@ public class CoreTests {
 			throw new RuntimeException("Failed while running test for " + className, ex);
 		}
 	}
+
+    @Parameterized.Parameters
+    public static File[] provideFiles() {
+        try {
+            return testResourceDirectory.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.matches("Java\\d+\\w+.class");
+                }
+            });
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
 
 	public static class PatchedClassLoader extends URLClassLoader {
 		private final int version;
