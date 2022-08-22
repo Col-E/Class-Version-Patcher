@@ -335,7 +335,6 @@ public class RecordMethodImplRewriter extends MethodVisitor implements Opcodes {
 			throw new IllegalStateException("Unsupported method: " + declaringType + "." + methodName + methodName);
 		}
 		mv.visitLabel(end);
-//		variablePopulators.forEach(Runnable::run);
 		for (LocalVariableNode localVariableNode : localVariables) {
 			mv.visitLocalVariable(localVariableNode.name, localVariableNode.desc, localVariableNode.signature, localVariableNode.start.getLabel(), localVariableNode.end.getLabel(), localVariableNode.index);
 		}
