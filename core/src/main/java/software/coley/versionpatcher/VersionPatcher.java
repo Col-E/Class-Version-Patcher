@@ -28,12 +28,14 @@ public class VersionPatcher extends ClassVisitor {
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		// Modify the version
 		version = Math.min(version, classVersion);
+
 		// Modify super-type for records (previewed in 14)
 		if (targetVersion < 14 && "java/lang/Record".equals(superName)) {
 			rewriteRecordMembers = true;
 			superName = "java/lang/Object";
 			access &= ~Opcodes.ACC_RECORD;
 		}
+
 		className = name;
 		super.visit(version, access, name, signature, superName, interfaces);
 	}

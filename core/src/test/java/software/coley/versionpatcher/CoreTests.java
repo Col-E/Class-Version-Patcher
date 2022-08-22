@@ -14,8 +14,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Load some Java 9+ version classes compiled with a later {@code javac} and run them through the patcher.
@@ -23,13 +22,18 @@ import static org.junit.Assert.fail;
  */
 @RunWith(Parameterized.class)
 public class CoreTests {
+    private static final int CLASSFILE_VERSION = (int) Double.parseDouble(System.getProperty("java.class.version"));
     private static final File testResourceDirectory = new File("src" + File.separator + "test" + File.separator + "resources");
-    private static final PatchedClassLoader loader = new PatchedClassLoader(8, ClassLoader.getSystemClassLoader());
+    private static final PatchedClassLoader loader = new PatchedClassLoader(CLASSFILE_VERSION - 44, ClassLoader.getSystemClassLoader());
 
     @Before
     public void setup() {
         // Assert the test is run on Java 8 to prove that it can downsample classes by running them
-        assertEquals("Must run test on Java 8!", Double.parseDouble(System.getProperty("java.class.version")), Opcodes.V1_8, 0);
+        assertTrue(
+                "Must run test on a version lower or equal to Java 8!",
+                CLASSFILE_VERSION <= Opcodes.V1_8
+        );
+        System.out.println("Classfile Version: " + CLASSFILE_VERSION);
     }
 
     @Parameterized.Parameters
@@ -66,7 +70,7 @@ public class CoreTests {
             String[] args = new String[0];
             main.invoke(null, (Object) args);
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            throw new RuntimeException("Failed while running test for " + className, ex);
         }
     }
 

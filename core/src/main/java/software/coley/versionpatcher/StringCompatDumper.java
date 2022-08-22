@@ -20,7 +20,7 @@ public class StringCompatDumper implements Opcodes {
 		ClassWriter cw = new ClassWriter(0);
 		FieldVisitor fv;
 		MethodVisitor mv;
-		cw.visit(V1_7, ACC_PUBLIC + ACC_FINAL + ACC_SUPER, CLASS_NAME, null, "java/lang/Object", null);
+		cw.visit(V1_6, ACC_PUBLIC + ACC_FINAL + ACC_SUPER, CLASS_NAME, null, "java/lang/Object", null);
 		fv = cw.visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "TAG_ARG", "C", null, 1);
 		fv.visitEnd();
 		fv = cw.visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "TAG_CONST", "C", null, 2);
