@@ -20,12 +20,6 @@
 			<artifactId>asm</artifactId>
 			<version>${asm.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.11.0</version>
-		</dependency>
 		<!--- Testing -->
 		<!-- https://mvnrepository.com/artifact/org.ow2.asm/asm-tree -->
 		<dependency>
